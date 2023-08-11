@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -21,25 +22,51 @@ export class MessageSocketGateway
 {
   @WebSocketServer() server: Server;
 
-  handleConnection(client: Socket) {
+  connectedUsers = new Map<string, string[]>();
+
+  handleConnection(@ConnectedSocket() client: Socket) {
     console.log(`WebSocket client ${client.id} connected.`);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(@ConnectedSocket() client: Socket) {
+    const roomsOfClient = this.connectedUsers.get(client.id) ?? [];
+
+    roomsOfClient.forEach((roomId) => {
+      client.leave(roomId);
+    });
+
+    console.log('leave rooms: ', roomsOfClient);
     console.log(`WebSocket client ${client.id} disconnected.`);
+  }
+
+  @SubscribeMessage('join')
+  async joinRoom(
+    @MessageBody() roomId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join(roomId);
+    if (!this.connectedUsers.has(client.id)) {
+      this.connectedUsers.set(client.id, []);
+    }
+
+    this.connectedUsers.get(client.id).push(roomId);
+
+    console.log(`${client.id} join room ${roomId}`);
+
+    const clientsInRoom = this.server.sockets.adapter.rooms.get(roomId);
+    console.log(`clients in room ${roomId}: `, clientsInRoom);
   }
 
   @SubscribeMessage('message')
   async receiveMessage(@MessageBody() message: MessageRequest) {
-    const { toUser, fromUser } = message;
+    const { roomId } = message;
 
     const fullMessage = {
       ...message,
       createdAt: Date.now(),
     };
 
-    console.log(`receive message in socket...`, fullMessage);
-    this.server.emit(`message-${toUser}`, fullMessage);
-    this.server.emit(`message-${fromUser}`, fullMessage);
+    console.log(`receive message in room ${roomId}...`, fullMessage);
+    this.server.to(roomId).emit(`message`, fullMessage);
   }
 }
