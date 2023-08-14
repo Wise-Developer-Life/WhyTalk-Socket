@@ -8,19 +8,17 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-
-interface MessageRequest {
-  fromUser: string;
-  toUser: string;
-  roomId: string;
-  content: string;
-}
+import { RabbitMqService } from '../rabbit-mq/rabbit-mq.service';
+import { Inject } from '@nestjs/common';
+import { MessageRequest, MessageResponse } from './message.type';
 
 @WebSocketGateway()
 export class MessageSocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() server: Server;
+
+  constructor(@Inject() private readonly mqMessageService: RabbitMqService) {}
 
   connectedUsers = new Map<string, string[]>();
 
@@ -61,12 +59,14 @@ export class MessageSocketGateway
   async receiveMessage(@MessageBody() message: MessageRequest) {
     const { roomId } = message;
 
-    const fullMessage = {
+    const fullMessage: MessageResponse = {
       ...message,
       createdAt: Date.now(),
     };
 
     console.log(`receive message in room ${roomId}...`, fullMessage);
     this.server.to(roomId).emit(`message`, fullMessage);
+
+    await this.mqMessageService.saveMessage(fullMessage);
   }
 }
