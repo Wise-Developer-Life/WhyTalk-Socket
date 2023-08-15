@@ -9,7 +9,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RabbitMqService } from '../rabbit-mq/rabbit-mq.service';
-import { Inject } from '@nestjs/common';
 import { MessageRequest, MessageResponse } from './message.type';
 
 @WebSocketGateway()
@@ -18,7 +17,7 @@ export class MessageSocketGateway
 {
   @WebSocketServer() server: Server;
 
-  constructor(@Inject() private readonly mqMessageService: RabbitMqService) {}
+  constructor(private readonly mqMessageService: RabbitMqService) {}
 
   connectedUsers = new Map<string, string[]>();
 
