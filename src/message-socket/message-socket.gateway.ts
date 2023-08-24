@@ -38,33 +38,33 @@ export class MessageSocketGateway
 
   @SubscribeMessage('join')
   async joinRoom(
-    @MessageBody() roomId: string,
+    @MessageBody() chatRoomId: string,
     @ConnectedSocket() client: Socket,
   ) {
-    client.join(roomId);
+    client.join(chatRoomId);
     if (!this.connectedUsers.has(client.id)) {
       this.connectedUsers.set(client.id, []);
     }
 
-    this.connectedUsers.get(client.id).push(roomId);
+    this.connectedUsers.get(client.id).push(chatRoomId);
 
-    console.log(`${client.id} join room ${roomId}`);
+    console.log(`${client.id} join room ${chatRoomId}`);
 
-    const clientsInRoom = this.server.sockets.adapter.rooms.get(roomId);
-    console.log(`clients in room ${roomId}: `, clientsInRoom);
+    const clientsInRoom = this.server.sockets.adapter.rooms.get(chatRoomId);
+    console.log(`clients in room ${chatRoomId}: `, clientsInRoom);
   }
 
   @SubscribeMessage('message')
   async receiveMessage(@MessageBody() message: MessageRequest) {
-    const { roomId } = message;
+    const { chatRoomId } = message;
 
     const fullMessage: MessageResponse = {
       ...message,
       createdAt: Date.now(),
     };
 
-    console.log(`receive message in room ${roomId}...`, fullMessage);
-    this.server.to(roomId).emit(`message`, fullMessage);
+    console.log(`receive message in room ${chatRoomId}...`, fullMessage);
+    this.server.to(chatRoomId).emit(`message`, fullMessage);
 
     await this.mqMessageService.saveMessage(fullMessage);
   }
