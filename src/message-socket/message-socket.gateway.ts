@@ -9,7 +9,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RabbitMqService } from '../rabbit-mq/rabbit-mq.service';
-import { MessageRequest, MessageResponse } from './message.type';
+import {
+  JoinRoomRequest,
+  MessageRequest,
+  MessageResponse,
+} from './message.type';
 
 @WebSocketGateway()
 export class MessageSocketGateway
@@ -38,9 +42,11 @@ export class MessageSocketGateway
 
   @SubscribeMessage('join')
   async joinRoom(
-    @MessageBody() chatRoomId: string,
+    @MessageBody() joinRequest: JoinRoomRequest,
     @ConnectedSocket() client: Socket,
   ) {
+    const { chatRoomId } = joinRequest;
+
     client.join(chatRoomId);
     if (!this.connectedUsers.has(client.id)) {
       this.connectedUsers.set(client.id, []);

@@ -8,3 +8,7 @@ export interface MessageRequest {
 export interface MessageResponse extends MessageRequest {
   createdAt: number;
 }
+
+export interface JoinRoomRequest {
+  chatRoomId: string;
+}

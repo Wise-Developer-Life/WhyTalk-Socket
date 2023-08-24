@@ -38,7 +38,7 @@ $ npm run test:cov
 ```javascript
 // join chat room
 // before join, please query chat room id from message service
-socket.emit('join', { roomId: 'chat_room_id' });
+socket.emit('join', { chatRoomId: 'chat_room_id' });
 
 // send message
 socket.emit('message', {
