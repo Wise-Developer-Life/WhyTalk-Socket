@@ -51,5 +51,12 @@ socket.emit('message', {
 //recieve message
 socket.on('message', (data) => {
   // recieve message if in the same room
+  // {
+  //   fromUser: string;
+  //   toUser: string;
+  //   chatRoomId: string;
+  //   content: string;
+  //   createdAt: number;
+  // }
 });
 ```
