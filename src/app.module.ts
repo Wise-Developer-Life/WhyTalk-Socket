@@ -6,7 +6,7 @@ import { MessageSocketModule } from './message-socket/message-socket.module';
 import { RabbitMqModule } from './rabbit-mq/rabbit-mq.module';
 
 @Module({
-  imports: [MessageSocketModule, MessageSocketModule, RabbitMqModule],
+  imports: [MessageSocketModule, RabbitMqModule],
   controllers: [AppController],
   providers: [AppService],
 })

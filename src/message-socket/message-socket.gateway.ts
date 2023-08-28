@@ -14,7 +14,11 @@ import {
   MessageRequest,
   MessageResponse,
 } from './message.type';
+import { UseFilters, UsePipes } from '@nestjs/common';
+import { WsExceptionFilter } from './ws-exception-filter';
+import { WSValidationPipe } from './ws-validation-pipe';
 
+@UseFilters(WsExceptionFilter)
 @WebSocketGateway()
 export class MessageSocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect
@@ -40,11 +44,13 @@ export class MessageSocketGateway
     console.log(`WebSocket client ${client.id} disconnected.`);
   }
 
+  @UsePipes(WSValidationPipe)
   @SubscribeMessage('join')
   async joinRoom(
     @MessageBody() joinRequest: JoinRoomRequest,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log('join request: ', joinRequest);
     const { chatRoomId } = joinRequest;
 
     client.join(chatRoomId);
@@ -60,6 +66,7 @@ export class MessageSocketGateway
     console.log(`clients in room ${chatRoomId}: `, clientsInRoom);
   }
 
+  @UsePipes(WSValidationPipe)
   @SubscribeMessage('message')
   async receiveMessage(@MessageBody() message: MessageRequest) {
     const { chatRoomId } = message;
