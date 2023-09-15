@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MessageSocketModule } from './message-socket/message-socket.module';
+import { SocketModule } from './socket/socket.module';
 
-import { RabbitMqModule } from './rabbit-mq/rabbit-mq.module';
+import { MessageQueueModule } from './message-queue/message-queue.module';
+import { GateWayModule } from './gateway/gateway.module';
 
 @Module({
-  imports: [MessageSocketModule, RabbitMqModule],
+  imports: [GateWayModule, SocketModule, MessageQueueModule],
   controllers: [AppController],
   providers: [AppService],
 })
