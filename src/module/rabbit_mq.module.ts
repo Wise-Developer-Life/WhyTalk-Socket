@@ -3,17 +3,24 @@ import {
   MQ_JOB_EXCHANGE,
   MQ_MATCHING_EXCHANGE,
 } from '../message-queue/message-queue.config';
+import { ConfigService } from '@nestjs/config';
 
-export const MQConfigurationModule = RabbitMQModule.forRoot(RabbitMQModule, {
-  exchanges: [
-    {
-      name: MQ_JOB_EXCHANGE,
-      type: 'direct',
-    },
-    {
-      name: MQ_MATCHING_EXCHANGE,
-      type: 'topic',
-    },
-  ],
-  uri: 'amqp://localhost:5672',
-});
+export const MQConfigurationModule = RabbitMQModule.forRootAsync(
+  RabbitMQModule,
+  {
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService) => ({
+      exchanges: [
+        {
+          name: MQ_JOB_EXCHANGE,
+          type: 'direct',
+        },
+        {
+          name: MQ_MATCHING_EXCHANGE,
+          type: 'topic',
+        },
+      ],
+      uri: configService.get<string>('RABBIT_MQ_URL'),
+    }),
+  },
+);

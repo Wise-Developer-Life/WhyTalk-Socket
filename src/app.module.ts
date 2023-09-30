@@ -5,9 +5,10 @@ import { SocketModule } from './socket/socket.module';
 
 import { MessageQueueModule } from './message-queue/message-queue.module';
 import { GateWayModule } from './gateway/gateway.module';
+import AppConfigModule from './module/config.module';
 
 @Module({
-  imports: [GateWayModule, SocketModule, MessageQueueModule],
+  imports: [GateWayModule, SocketModule, MessageQueueModule, AppConfigModule],
   controllers: [AppController],
   providers: [AppService],
 })
